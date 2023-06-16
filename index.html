@@ -1,5 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
+    <style>
+        body {
+            background-color: black;
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-family: "Helvetica Neue",Helvetica;
+            color:white;
+            font-weight: bold;
+        }
+        #header{
+            text-align: center;
+            width:100%;
+            padding-top: 20px;
+        }
+        ul{
+            display:flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            margin:auto;
+            padding:auto;
+            padding-inline-start: 0;
+        }
+        li{
+            list-style: none;
+            background-size: cover;
+            background-position: 25%;
+            filter: blur(1px);
+            transition-property: padding-top,padding-bottom,filter;
+            transition-duration: 0.5s;
+            transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+            >img{
+            width: 50%;
+            }
+            z-index: 0;
+        }
+        li:hover{
+            transition-property: padding-top,padding-bottom,filter;
+            transition-duration: 0.5s;
+            transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+            filter: none;
+            padding-bottom:42px;
+            padding-top:42px;
+        }
+        .card{
+            display: flex;  
+            flex-basis: 40%;
+            justify-content: center;
+            text-align: center;
+            align-items: center;
+            border-radius:10px;
+            border-radius: 15%;
+            width:35vw;
+            height:35vh;
+            border: 1px solid cyan;
+            margin:auto;
+            transition-property: all;
+            transition-duration: 0.5s;
+            transition-timing-function: cubic-bezier(0.175, 0.885, 0.3, 1.4);
+        }
+        .card:hover{
+            border-radius: 0%;
+            background-color:darkslategrey;
+            transition-property: all;
+            transition-duration: 0.5s;
+            transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .light-blocker{
+        }
+
+        .right-section{
+            display: flex;
+            flex-direction: row;
+            >div{
+                padding:10px;
+                width: 50%;
+                align-content: center;
+                width: 35%;
+                margin:auto;
+                z-index: 5;
+                background-color: rgba(0, 0, 0, 0.2);
+                box-shadow: 0 0 4px 4px rgba(121, 121, 121, 0.5);
+                border-radius: 15px;
+            }
+        }
+        .left-section{
+            display: flex;
+            flex-direction: row;
+            >div{
+                padding:10px;
+                align-content: center;
+                width: 35%;
+                margin:auto;
+                z-index: 5;
+                background-color: rgba(0, 0, 0, 0.2);
+                box-shadow: 0 0 4px 4px rgba(121, 121, 121, 0.5);
+                border-radius: 15px;
+            }
+        }
+        img{
+            padding:10px;
+            width: auto;
+        }
+        .vspace-buffer{
+            height:1px;
+        }
+        </style>
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,17 +116,55 @@
     <title>Paul Vancauwenberghe</title>
 </head>
 <body>
-    <h1>Paul Vancauwenberghe</h1>
-    <h2>Video Game Developper, 3D Artist, Musician & Photographer</h2>
+    <div id="header">
+        <h1>PAUL VANCAUWENBERGHE</h1>
+        <h2>Game Developper, 3D Artist, Musician & Photographer</h2>
+    </div>
     <ul>
-        <li>
-            Developper
+        <li class="right-section">
+            <div>
+                <h1>Développement</h1>
+                J'ai de l'expérience sur de nombreux outils et frameworks, allant du bas niveau (C/C++) au web (AngularJS/ASP.NET) en passant par le script orienté objet (Python/C#)
+                <br>
+                <a href="https://erawa.itch.io/">Mon profil itch.io</a> témoigne de ma capacité à travailler en équipe sur le moteur de jeu Unity.
+                <br>
+                Je peux développer des jeux, des applications mobiles et des sites web, mais également des bots discord ou même prendre part à l'intégration d'intelligence artificielle en deep learning  dans un projet.
+            </div>
+            <img src="images/RhythmShapes.png"/>
         </li>
-        <li>
-            3D Artist
+        <li class="left-section" style="background-image: url(images/Atlas.png);">
+                <img onclick="open(url('https://www.youtube.com/watch?v=WuXlr25w75A'))" src="images/3D.png" alt="Réalisation animée pour le challenge Moving Meditations"/>
+            <div>
+                <h1>Art 3D</h1>
+                J'ai commencé la 3D en auto-didacte dès le collège avec le logiciel Blender3D.
+                <br>
+                Depuis je n'ai jamais changé de logiciel et je le connais donc très bien, même si je n'ai pas suivi de cursus artistique spécialisé dessus.
+                <br>
+                J'ai notamment de l'expérience en tant que formateur sur Blender3D car j'ai donné des cours à fréquence hebdomadaire dans le club d'art 3D de Télécom SudParis.
+                
+            </div>
         </li>
-        <li>
-            Composer/Sound designer
+        <li class="right-section"  style="background-image: url(images/streetphoto.jpg);">
+            <div>
+                <h1>Photographie</h1>
+                J'ai principalement découvert la photographie évènementielle durant mes années d'études en école d'ingénieur, grâce au club de photographie.
+                <br/>
+                Aujourd'hui j'ai mon propre appareil et je fais de la photographie de rue.
+                <br>
+                J'ai donc de l'expérience en photo dans diverses conditions et je serais ravi de mettre mes compétences en œuvre pour capturer les moments qui vous sont chers. 
+            </div>
+            <img src="images/photography.jpg"/>
+        </li>
+        <li class="left-section" style="background-image: url(images/IplayBassBG.jpg);">
+            <img src="images/iplaybasssmol.jpg"/>
+            <div>
+                <h1>Musique</h1>
+                J'ai commencé la musique avec le saxophone. Je me suis ensuite intéressé à d'autres instruments tels que la batterie, le piano, la guitare et la basse.
+                <br>
+                Depuis je joue principalement de la basse, en reprenant parfois le saxophone si besoin.
+                <br>
+                Je suis ouvert à tous les styles, avec une petite préférence pour le funk, le math rock et le progressive metal.
+            </div>
         </li>
     </ul>
 </body>
