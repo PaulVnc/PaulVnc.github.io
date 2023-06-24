@@ -1,116 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-    <style>
-        body {
-            background-color: black;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family: "Helvetica Neue",Helvetica;
-            color:white;
-            font-weight: bold;
-        }
-        #header{
-            text-align: center;
-            width:100%;
-            padding-top: 20px;
-        }
-        ul{
-            display:flex;
-            flex-wrap: wrap;
-            flex-direction: column;
-            justify-content: center;
-            text-align: center;
-            margin:auto;
-            padding:auto;
-            padding-inline-start: 0;
-        }
-        li{
-            list-style: none;
-            background-size: cover;
-            background-position: 25%;
-            transition-property: padding-top,padding-bottom,filter;
-            transition-duration: 0.5s;
-            transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
-            >img{
-            width: 50%;
-            }
-            z-index: 0;
-        }
-        li:hover{
-            transition-property: padding-top,padding-bottom,filter;
-            transition-duration: 0.5s;
-            transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
-            padding-bottom:42px;
-            padding-top:42px;
-        }
-        .card{
-            display: flex;  
-            flex-basis: 40%;
-            justify-content: center;
-            text-align: center;
-            align-items: center;
-            border-radius:10px;
-            border-radius: 15%;
-            width:35vw;
-            height:35vh;
-            border: 1px solid cyan;
-            margin:auto;
-            transition-property: all;
-            transition-duration: 0.5s;
-            transition-timing-function: cubic-bezier(0.175, 0.885, 0.3, 1.4);
-        }
-        .card:hover{
-            border-radius: 0%;
-            background-color:darkslategrey;
-            transition-property: all;
-            transition-duration: 0.5s;
-            transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .light-blocker{
-        }
-
-        .right-section{
-            display: flex;
-            flex-direction: row;
-            >div{
-                padding:10px;
-                width: 50%;
-                align-content: center;
-                width: 35%;
-                margin:auto;
-                z-index: 5;
-                background-color: rgba(0, 0, 0, 0.2);
-                box-shadow: 0 0 4px 4px rgba(121, 121, 121, 0.5);
-                border-radius: 15px;
-            }
-        }
-        .left-section{
-            display: flex;
-            flex-direction: row;
-            >div{
-                padding:10px;
-                align-content: center;
-                width: 35%;
-                margin:auto;
-                z-index: 5;
-                background-color: rgba(0, 0, 0, 0.2);
-                box-shadow: 0 0 4px 4px rgba(121, 121, 121, 0.5);
-                border-radius: 15px;
-            }
-        }
-        img{
-            padding:10px;
-            width: auto;
-        }
-        .vspace-buffer{
-            height:1px;
-        }
-        </style>
+    
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Paul Vancauwenberghe</title>
 </head>
 <body>
