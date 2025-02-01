@@ -1,66 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
-    
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Paul Vancauwenberghe</title>
+    <title>Emergency Traffic Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 </head>
-<body>
-    <div id="header">
-        <h1>PAUL VANCAUWENBERGHE</h1>
-        <h2>Game Developper, 3D Artist, Musician & Photographer</h2>
+<body style="background-color: #1a1a1a; color: #ffffff;">
+    <div style="max-width: 800px; margin: 20px auto; padding: 20px; font-family: Arial, sans-serif;">
+        <h1 style="color: #ff4444;">Emergency Traffic Management</h1>
+        
+        <!-- Location Status -->
+        <div id="locationStatus" style="margin-bottom: 20px; padding: 15px; background: #333333; border-radius: 8px;">
+            <h2>Your Location</h2>
+            <p id="currentLocation">Detecting location...</p>
+            <div id="nearestCamp" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- User Registration -->
+        <div id="registration" style="margin-bottom: 20px; padding: 15px; background: #333333; border-radius: 8px;">
+            <h2>Get Your ID</h2>
+            <button onclick="generateId()" style="padding: 10px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Generate ID Number
+            </button>
+            <p id="userId" style="font-size: 1.2em; font-weight: bold;"></p>
+        </div>
+
+        <!-- Choice Selection -->
+        <div id="choices" style="display: none; margin-bottom: 20px; padding: 15px; background: #333333; border-radius: 8px;">
+            <h2>Make Your Choice</h2>
+            <div id="waitTimes" style="margin-bottom: 15px;">
+                <h3>Shelter Status & Wait Times:</h3>
+                <ul id="waitTimesList" style="list-style: none; padding: 0;"></ul>
+            </div>
+            <select id="decision" style="padding: 10px; margin-right: 10px; border-radius: 4px; border: 1px solid #ddd; background: #444; color: white;">
+                <option value="road">Stay on Road</option>
+                <option value="camp1">Gymnasium 1</option>
+                <option value="camp2">Gymnasium 2</option>
+                <option value="camp3">Gymnasium 3</option>
+                <option value="camp4">Gymnasium 4</option>
+            </select>
+            <button onclick="submitChoice()" style="padding: 10px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Submit Choice
+            </button>
+        </div>
+
+        <!-- Statistics -->
+        <div id="stats" style="margin-bottom: 20px; padding: 15px; background: #333333; border-radius: 8px;">
+            <h2>Current Situation</h2>
+            <canvas id="statsChart"></canvas>
+        </div>
     </div>
-    <ul>
-        <li class="right-section">
-            <div>
-                <h1>Développement</h1>
-                J'ai de l'expérience sur de nombreux outils et frameworks, allant du bas niveau (C/C++) au web (AngularJS/ASP.NET) en passant par le script orienté objet (Python/C#)
-                <br>
-                <a href="https://erawa.itch.io/">Mon profil itch.io</a> témoigne de ma capacité à travailler en équipe sur le moteur de jeu Unity.
-                <br>
-                Je peux développer des jeux, des applications mobiles et des sites web, mais également des bots discord ou même prendre part à l'intégration d'intelligence artificielle en deep learning  dans un projet.
-            </div>
-            <img src="images/RhythmShapes.png"/>
-        </li>
-        <li class="left-section" style="background-image: url(images/Atlas.webp);">
-                <img onclick="open(url('https://www.youtube.com/watch?v=WuXlr25w75A'))" src="images/3D.webp" alt="Réalisation animée pour le challenge Moving Meditations"/>
-            <div>
-                <h1>Art 3D</h1>
-                J'ai commencé la 3D en auto-didacte dès le collège avec le logiciel Blender3D.
-                <br>
-                Depuis je n'ai jamais changé de logiciel et je le connais donc très bien, même si je n'ai pas suivi de cursus artistique spécialisé dessus.
-                <br>
-                J'ai notamment de l'expérience en tant que formateur sur Blender3D car j'ai donné des cours à fréquence hebdomadaire dans le club d'art 3D de Télécom SudParis.
+
+    <script>
+        let currentId = null;
+        let choices = {
+            road: 0,
+            camp1: 0,
+            camp2: 0,
+            camp3: 0,
+            camp4: 0
+        };
+
+        // Gymnasium information
+        const gymnasiums = {
+    camp1: {
+        name: "Gymnasium of Aix-les-Bains",
+        capacity: 120,
+        coords: {lat: 45.692235, lng: 5.908941},
+        processingRate: 8
+    },
+    camp2: {
+        name: "Gymnasium of Montmélian",
+        capacity: 110,
+        coords: {lat: 45.503333, lng: 6.050833},
+        processingRate: 8
+    },
+    camp3: {
+        name: "Olympic Hall of Albertville",
+        capacity: 150, // Larger capacity for Olympic facility
+        coords: {lat: 45.675500, lng: 6.392400},
+        processingRate: 10 // Slightly higher processing rate due to larger facility
+    },
+    camp4: {
+        name: "Gymnasium of Moûtiers",
+        capacity: 120,
+        coords: {lat: 45.487100, lng: 6.530700},
+        processingRate: 8
+    }
+};
+
+        // Processing rate settings
+        let processingRates = {
+            road: 30, // cars per minute on main road
+            camp: 8  // default cars per minute at each camp
+        };
+
+        // Get user's location
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        document.getElementById('currentLocation').innerHTML = 
+                            `Location detected<br>Latitude: ${userLat.toFixed(4)}<br>Longitude: ${userLng.toFixed(4)}`;
+                        findNearestGym(userLat, userLng);
+                    },
+                    error => {
+                        document.getElementById('currentLocation').innerHTML = 
+                            "Location access denied. Please enable location services.";
+                    }
+                );
+            }
+        }
+
+        // Calculate distance between two points
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Find nearest gymnasium
+        function findNearestGym(userLat, userLng) {
+            let nearest = null;
+            let shortestDistance = Infinity;
+
+            Object.entries(gymnasiums).forEach(([id, gym]) => {
+                const distance = calculateDistance(userLat, userLng, gym.coords.lat, gym.coords.lng);
+                if (distance < shortestDistance) {
+                    shortestDistance = distance;
+                    nearest = gym;
+                }
+            });
+
+            if (nearest) {
+                document.getElementById('nearestCamp').innerHTML = 
+                    `Nearest shelter: ${nearest.name}<br>Distance: ${shortestDistance.toFixed(1)} km`;
+            }
+        }
+
+        function calculateWaitTime(choice) {
+            const carsAhead = choices[choice];
+            if (choice === 'road') {
+                return Math.ceil(carsAhead / processingRates.road);
+            } else {
+                const gym = gymnasiums[choice];
+                const remainingCapacity = gym.capacity - carsAhead;
+                if (remainingCapacity <= 0) {
+                    return Infinity; // Gymnasium is full
+                }
+                return Math.ceil(carsAhead / gym.processingRate);
+            }
+        }
+
+        function getCapacityStatus(choice) {
+            if (choice === 'road') return '';
+            
+            const gym = gymnasiums[choice];
+            const occupied = choices[choice];
+            const capacityPercentage = (occupied / gym.capacity) * 100;
+            
+            if (capacityPercentage >= 100) return '🔴 FULL';
+            if (capacityPercentage >= 80) return '🟠 Almost Full';
+            if (capacityPercentage >= 50) return '🟡 Half Full';
+            return '🟢 Available';
+        }
+
+        function updateWaitTimes() {
+            const waitTimesList = document.getElementById('waitTimesList');
+            waitTimesList.innerHTML = '';
+            
+            Object.keys(choices).forEach(choice => {
+                const waitTime = calculateWaitTime(choice);
+                const li = document.createElement('li');
+                li.style.padding = '8px 0';
+                li.style.borderBottom = '1px solid #444';
                 
-            </div>
-        </li>
-        <li class="right-section"  style="background-image: url(images/streetphoto.webp);">
-            <div>
-                <h1>Photographie</h1>
-                J'ai principalement découvert la photographie évènementielle durant mes années d'études en école d'ingénieur, grâce au club de photographie.
-                <br/>
-                Aujourd'hui j'ai mon propre appareil et je fais de la photographie de rue.
-                <br>
-                J'ai donc de l'expérience en photo dans diverses conditions et je serais ravi de mettre mes compétences en œuvre pour capturer les moments qui vous sont chers. 
-                <br>
-                <a href="photos/">VOIR PLUS</a>
-            </div>
-            <img src="images/photography.webp"/>
-        </li>
-        <li class="left-section" style="background-image: url(images/IplayBassBG.jpg);">
-            <img src="images/iplaybasssmol.jpg"/>
-            <div>
-                <h1>Musique</h1>
-                J'ai commencé la musique avec le saxophone. Je me suis ensuite intéressé à d'autres instruments tels que la batterie, le piano, la guitare et la basse.
-                <br>
-                Depuis je joue principalement de la basse, en reprenant parfois le saxophone si besoin.
-                <br>
-                Je suis ouvert à tous les styles, avec une petite préférence pour le funk, le math rock et le progressive metal.
-            </div>
-        </li>
-    </ul>
+                const choiceName = choice === 'road' ? 'Main Road' : gymnasiums[choice].name;
+                const waitTimeColor = waitTime > 30 ? '#ff4444' : waitTime > 15 ? '#ffa726' : '#4caf50';
+                const capacityStatus = getCapacityStatus(choice);
+                
+                li.innerHTML = `
+                    <span style="font-weight: bold;">${choiceName}</span> 
+                    ${capacityStatus}
+                    <br>
+                    <span style="color: ${waitTimeColor};">
+                        ${waitTime === Infinity ? 'FULL' : `${waitTime} min wait`}
+                    </span>
+                    (${choices[choice]} vehicles)
+                `;
+                waitTimesList.appendChild(li);
+            });
+        }
+
+        // Rest of the functions remain the same as in previous version
+        function generateId() {
+            currentId = Math.floor(Math.random() * 1000000);
+            document.getElementById('userId').textContent = `Your ID: ${currentId}`;
+            document.getElementById('choices').style.display = 'block';
+            localStorage.setItem('trafficEmergencyId', currentId);
+        }
+
+        function submitChoice() {
+            if (!currentId) {
+                alert('Please generate an ID first');
+                return;
+            }
+
+            const choice = document.getElementById('decision').value;
+            const gym = gymnasiums[choice];
+            
+            if (choice !== 'road' && choices[choice] >= gym.capacity) {
+                alert('This shelter is already at full capacity. Please choose another option.');
+                return;
+            }
+            
+            localStorage.setItem(`choice_${currentId}`, choice);
+            updateStats(choice);
+            updateChart();
+            updateWaitTimes();
+        }
+
+        function updateStats(newChoice) {
+            Object.keys(choices).forEach(key => choices[key] = 0);
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('choice_')) {
+                    const choice = localStorage.getItem(key);
+                    choices[choice]++;
+                }
+            }
+        }
+
+        let statsChart;
+        function initChart() {
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            statsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Road', 'Gymnasium 1', 'Gymnasium 2', 'Gymnasium 3', 'Gymnasium 4'],
+                    datasets: [{
+                        label: 'Number of Vehicles',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#ffa726',
+                            '#2196f3',
+                            '#4caf50',
+                            '#9c27b0',
+                            '#f44336'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#ffffff'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            statsChart.data.datasets[0].data = [
+                choices.road,
+                choices.camp1,
+                choices.camp2,
+                choices.camp3,
+                choices.camp4
+            ];
+            statsChart.update();
+        }
+
+        window.onload = function() {
+            getUserLocation();
+            
+            const savedId = localStorage.getItem('trafficEmergencyId');
+            if (savedId) {
+                currentId = savedId;
+                document.getElementById('userId').textContent = `Your ID: ${currentId}`;
+                document.getElementById('choices').style.display = 'block';
+            }
+            
+            initChart();
+            updateStats();
+            updateChart();
+            updateWaitTimes();
+        };
+    </script>
 </body>
-</html>
+    </html>
